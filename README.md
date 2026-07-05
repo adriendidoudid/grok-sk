@@ -1,12 +1,27 @@
 # grok-sk
 
-Agent skill for calling **xAI's Grok API** from Claude Code (or any agent supporting `SKILL.md`): chat, image generation & editing, video generation, real-time web search, and X (Twitter) search.
+[![validate](https://github.com/adriendidoudid/grok-sk/actions/workflows/validate.yml/badge.svg)](https://github.com/adriendidoudid/grok-sk/actions/workflows/validate.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-The skill lives in [`skills/grok/SKILL.md`](skills/grok/SKILL.md).
+Agent skill for **xAI's Grok API**, for Claude Code and any agent supporting the `SKILL.md` format. Once installed, your agent can autonomously:
+
+| Capability | Endpoint | Model |
+|---|---|---|
+| 💬 Chat / reasoning | `/v1/chat/completions` | `grok-4.3` |
+| 🖼️ Image generation | `/v1/images/generations` | `grok-imagine-image-quality` |
+| ✏️ Image editing | `/v1/images/edits` | `grok-imagine-image-quality` |
+| 🎬 Video generation | `/v1/videos/generations` | `grok-imagine-video` |
+| 🌐 Real-time web search | `/v1/responses` + `web_search` | `grok-4.3` |
+| 𝕏 X (Twitter) search | `/v1/responses` + `x_search` | `grok-4.3` |
+
+Pure `curl` — no SDK, no dependencies to install in your projects. The skill lives in [`skills/grok/SKILL.md`](skills/grok/SKILL.md).
 
 ## Requirements
 
-- A Grok API key from [console.x.ai](https://console.x.ai), exported as `GROK_API_KEY`:
+- A Grok API key from [console.x.ai](https://console.x.ai)
+- `curl` and `jq` available in the shell
+
+Export the key (add it to `~/.bashrc` / `~/.zshrc` to make it permanent):
 
 ```bash
 export GROK_API_KEY="xai-..."
@@ -14,30 +29,57 @@ export GROK_API_KEY="xai-..."
 
 (`XAI_API_KEY` works as a fallback.)
 
-- `curl` and `jq` available in the shell.
-
 ## Install
 
 ```bash
-npx skills add <your-github-user>/grok-sk
+npx skills add adriendidoudid/grok-sk
 ```
 
-Choose the **global** install when prompted so the skill is available in every project.
+Choose the **global** install when prompted so the skill is available in every project. To update later, re-run the same command.
 
 Manual fallback — copy the skill into your global skills folder:
 
 ```bash
+git clone https://github.com/adriendidoudid/grok-sk
 mkdir -p ~/.claude/skills/grok
-cp skills/grok/SKILL.md ~/.claude/skills/grok/SKILL.md
+cp grok-sk/skills/grok/SKILL.md ~/.claude/skills/grok/SKILL.md
 ```
 
 ## Usage
 
-Once installed, just ask in any project, e.g.:
+Once installed, just ask naturally in any project — the agent picks up the skill on its own. Real-world prompts:
 
-> "Build the landing page. If you need images, generate them with Grok and put them in the appropriate folder, with prompts that match this site's style."
+**Website assets** (the flagship use case):
 
-The skill guides the agent to find the right assets folder, craft a brand-appropriate prompt, pick the right aspect ratio, generate via the xAI API, and download the files locally.
+> Build the landing page. If you need images, generate them with Grok and put them in the appropriate folder, with prompts that match this site's branding and style.
+
+The skill makes the agent find the existing assets folder (`public/images/`, `src/assets/`…), craft a prompt from the site's actual colors and tone, pick the aspect ratio matching the placement (hero 16:9, avatar 1:1…), download the files with clean names, and visually verify them before wiring them in.
+
+**Single image:**
+
+> Generate a 16:9 hero image with Grok for this page — dark, minimal, matching our navy palette — and reference it in `index.html`.
+
+**Edit an existing image:**
+
+> Take `public/images/hero.jpg` and use Grok to replace the background with a soft studio gradient, keeping the subject unchanged.
+
+**Video:**
+
+> Generate a 6-second product teaser video with Grok (16:9, 720p) and save it in `public/videos/`.
+
+**Real-time web search:**
+
+> Use Grok web search to find what changed in Next.js 16 and check whether our config is affected. Cite sources.
+
+**X search:**
+
+> Search X via Grok for reactions to the latest xAI release this week, only from AI researcher accounts.
+
+**Chat:**
+
+> Ask Grok for 10 tagline ideas for this product, in French and English.
+
+Prompts work in any language — the skill's triggers are semantic.
 
 ## Publishing & CI
 
@@ -54,4 +96,19 @@ Run the same checks locally before pushing:
 python3 scripts/validate.py && bash scripts/test-jq.sh
 ```
 
-Users update an installed skill by re-running `npx skills add <your-github-user>/grok-sk`.
+## Repository layout
+
+```
+skills/grok/SKILL.md        the skill (the only thing npx skills add installs)
+scripts/validate.py         static validation (frontmatter, bash, JSON)
+scripts/test-jq.sh          jq expressions vs mock API responses
+.github/workflows/          CI: validate on push/PR + optional live smoke test
+```
+
+## Cost notes
+
+Images ~$0.02–0.05 each, video ~$0.05/s, search billed as tokens + per tool invocation — see [xAI pricing](https://docs.x.ai/developers/models). The skill defaults to quality models and tells the agent to use the cheaper `grok-imagine-image` for drafts.
+
+## License
+
+[MIT](LICENSE)
