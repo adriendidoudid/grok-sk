@@ -9,7 +9,7 @@ Call the xAI API directly with `curl` — no SDK, no dependencies. Base URL: `ht
 
 ## Conventions (read first)
 
-1. **Shell state does not persist between tool calls.** Variables like `$KEY` or a captured request id are gone in the next Bash invocation. Every command block below is self-contained: it re-resolves the key on its first line — keep that line when running them.
+1. **Assume shell state does not persist between commands** (true in most agent harnesses): variables like `$KEY` or a captured request id are gone in the next invocation. Every command block below is self-contained: it re-resolves the key on its first line — keep that line when running them.
 
    Check availability up front (never print the key itself):
 
@@ -26,7 +26,7 @@ Call the xAI API directly with `curl` — no SDK, no dependencies. Base URL: `ht
 4. Media rules:
    - Always `"response_format": "url"`, never `b64_json` — never paste base64 into the conversation.
    - Returned media URLs are **temporary**: download with `curl -sL -o` immediately.
-   - After downloading, verify with `file <path>` (must report image/video data, not HTML or empty) and view images with the Read tool before using them.
+   - After downloading, verify with `file <path>` (must report image/video data, not HTML or empty) and, if your environment can display images, view them before using them.
 
 5. The legacy Live Search `search_parameters` field is retired (returns HTTP 410). Real-time search goes through the `web_search` / `x_search` tools on `/v1/responses` (see below).
 
@@ -103,7 +103,7 @@ i=1; jq -r '.data[]?.url' /tmp/grok-img.json | while read -r u; do
   curl -sL "$u" -o "public/images/hero-v$i.jpg"; i=$((i+1)); done
 ```
 
-6. **Verify** each file with the Read tool to confirm it matches the brief before wiring it into the project. If it misses, refine the prompt and regenerate — don't ship a bad image.
+6. **Verify** each file — view the image if your environment supports it, otherwise at least check the `file` output and byte size — to confirm it matches the brief before wiring it into the project. If it misses, refine the prompt and regenerate — don't ship a bad image.
 
 For drafts or many variants, use `grok-imagine-image` and `1k`, then regenerate keepers with the quality model.
 
@@ -146,7 +146,7 @@ EOF
 jq -r '.request_id // empty' /tmp/grok-vid.json
 ```
 
-**Step 2 — poll.** Paste the id printed above (it does not persist between tool calls). This block runs ≤ ~90 s, so it fits the default Bash tool timeout — **re-run it until status is `done`** (generation typically takes 1–5 min):
+**Step 2 — poll.** Paste the id printed above (it does not persist between commands). This block runs ≤ ~90 s, so it fits typical per-command timeouts — **re-run it until status is `done`** (generation typically takes 1–5 min):
 
 ```bash
 KEY="${GROK_API_KEY:-$XAI_API_KEY}"

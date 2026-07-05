@@ -3,7 +3,7 @@
 [![validate](https://github.com/adriendidoudid/grok-sk/actions/workflows/validate.yml/badge.svg)](https://github.com/adriendidoudid/grok-sk/actions/workflows/validate.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Agent skill for **xAI's Grok API**, for Claude Code and any agent supporting the `SKILL.md` format. Once installed, your agent can autonomously:
+Agent skill for **xAI's Grok API**, written against the open [Agent Skills](https://agentskills.io) standard (`SKILL.md`) — it works with **any coding agent that reads skills**: Claude Code, Cursor, Codex, Gemini CLI, opencode, Amp, and others. The instructions are agent-agnostic (plain `curl` + `jq`, no harness-specific tools assumed). Once installed, your agent can autonomously:
 
 | Capability | Endpoint | Model |
 |---|---|---|
@@ -35,9 +35,9 @@ export GROK_API_KEY="xai-..."
 npx skills add adriendidoudid/grok-sk
 ```
 
-Choose the **global** install when prompted so the skill is available in every project. To update later, re-run the same command.
+The installer asks **which agent(s)** to install into (Claude Code, Cursor, Codex, Gemini CLI, opencode, Amp…) and handles each one's skills directory for you. Choose the **global** install so the skill is available in every project. To update later, re-run the same command.
 
-Manual fallback — copy the skill into your global skills folder:
+Manual fallback — copy the skill into your agent's skills folder (Claude Code shown; other agents each have their own equivalent directory):
 
 ```bash
 git clone https://github.com/adriendidoudid/grok-sk
