@@ -1,4 +1,4 @@
-![grok-sk banner](banner.png)
+![grok-sk banner](banner.jpg)
 
 # grok-sk
 
