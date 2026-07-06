@@ -1,3 +1,5 @@
+![grok-sk banner](banner.png)
+
 # grok-sk
 
 [![validate](https://github.com/adriendidoudid/grok-sk/actions/workflows/validate.yml/badge.svg)](https://github.com/adriendidoudid/grok-sk/actions/workflows/validate.yml)
